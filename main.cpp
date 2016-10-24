@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/time.h>
 
 /*#include <sys/socket.h>
 #include <sys/types.h>
@@ -15,7 +16,43 @@
 
 using namespace std;
 
+/*Función para verificar que el numero solo esté dos veces en el tablero*/
+bool repeat(int arreglo[], int num, int cont){
+    int flag = 0;
+    for(int i = 0; i <= cont; i++){
+        if(arreglo[i] == num)
+            flag++;
+    }
+    if(flag > 1)
+        return true;
+    else
+        return false;
+}
+
 int main(){
+
+    /*Iniciar la semilla de números aleatorios*/
+    srand(time(NULL));
+
+    /*Cargar el tablero con números aleatorios*/
+    int tablero[10], num, i = 0;
+    memset(tablero, 0, sizeof(tablero));
+    while(i < 10){
+        num = 1 + rand()%(5 + 1 - 1);
+        if(!repeat(tablero, num, i)){
+            tablero[i] = num;
+            i++;
+        }
+        else
+            continue;
+    }
+
+    /*Mostrar valores del tablero*/
+    for(int i = 0; i < 10; i++){
+        cout<<tablero[i]<<endl;
+    }
+
+
 
     /*int s, ns;
     int on = 1, port, res, res2, npolls = 1, tamano_actual = 0;
