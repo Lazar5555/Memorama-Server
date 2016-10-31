@@ -4,7 +4,8 @@
 #include <string.h>
 #include <sys/time.h>
 
-/*#include <sys/socket.h>
+/*Librerías para red*/
+#include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
 #include <poll.h>
@@ -12,7 +13,9 @@
 #include <sys/ioctl.h>
 #include <errno.h>
 #include <unistd.h>
-#include <arpa/inet.h>*/
+#include <arpa/inet.h>
+
+#define PORT 25500
 
 using namespace std;
 
@@ -52,10 +55,8 @@ int main(){
         cout<<tablero[i]<<endl;
     }
 
-
-
-    /*int s, ns;
-    int on = 1, port, res, res2, npolls = 1, tamano_actual = 0;
+    int s, ns;
+    int on = 1, res, res2, npolls = 1, tamano_actual = 0;
     int terminar_servidor = 0, recorrer_arreglo = 0;
     struct sockaddr_in server, client, clients[50];
     socklen_t clielen;
@@ -69,12 +70,10 @@ int main(){
         return EXIT_FAILURE;
     }
 
-    cout<<"Puerto a la escucha: ";
-    cin>>port;
-
+    /*Inicializar la estructura sockaddr_in*/
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
-    server.sin_port = htons(port);
+    server.sin_port = htons(PORT);
     server.sin_addr.s_addr = INADDR_ANY;
 
     res = bind(s, (struct sockaddr*)&server, sizeof(server));
@@ -201,7 +200,7 @@ int main(){
             close(polls[i].fd);
     }
     close(ns);
-    close(s);*/
+    close(s);
 
     return EXIT_SUCCESS;
 }
