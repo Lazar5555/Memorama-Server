@@ -14,3 +14,19 @@
 	<unistd.h>
 	<arpa/inet.h>
 
+1478047444 source:/home/l-e/Escritorio/Memorama-Server/main.cpp
+	<iostream>
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<sys/time.h>
+	<sys/socket.h>
+	<sys/types.h>
+	<netdb.h>
+	<poll.h>
+	<netinet/in.h>
+	<sys/ioctl.h>
+	<errno.h>
+	<unistd.h>
+	<arpa/inet.h>
+

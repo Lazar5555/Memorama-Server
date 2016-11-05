@@ -16,6 +16,7 @@
 #include <arpa/inet.h>
 
 #define PORT 25500
+#define LEN_LOAD 12
 
 using namespace std;
 
@@ -33,6 +34,8 @@ bool repeat(int arreglo[], int num, int cont){
 }
 
 int main(){
+    /*Variable que se manda al cliente con las posiciones y turno*/
+    char load[LEN_LOAD];
 
     /*Iniciar la semilla de números aleatorios*/
     srand(time(NULL));
@@ -51,8 +54,10 @@ int main(){
     }
 
     /*Mostrar valores del tablero*/
+    bzero(load, LEN_LOAD);
     for(int i = 0; i < 10; i++){
         cout<<tablero[i]<<endl;
+        load[i] = (char)(tablero[i] + 48);
     }
 
     int s, ns;
@@ -122,11 +127,11 @@ int main(){
             if(polls[i].revents == 0)
                 continue;
 
-            if(polls[i].revents != POLLIN){
+            /*if(polls[i].revents != POLLIN){
                 cout<<"Error en revents, no es POLLIN"<<endl;
                 terminar_servidor = 1;
                 break;
-            }
+            }*/
 
             if(polls[i].fd == s){
 
@@ -149,6 +154,10 @@ int main(){
 
                     polls[npolls].fd = ns;
                     polls[npolls].events = POLLIN;
+                    /*Enviar el número de jugador*/
+                    load[10] = (char)(npolls + 48);
+                    load[11] = '\n';
+                    res = send(polls[npolls].fd, load, LEN_LOAD, 0);
                     npolls++;
 
                 }while(ns != -1);
@@ -178,7 +187,7 @@ int main(){
             }
         }
 
-        if (recorrer_arreglo == 1){
+        if(recorrer_arreglo == 1){
 
             recorrer_arreglo = 0;
             for (int i = 0; i < npolls; i++){
