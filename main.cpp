@@ -16,7 +16,7 @@
 #include <arpa/inet.h>
 
 #define PORT 25500
-#define LEN_LOAD 12
+#define LEN_LOAD 11
 
 using namespace std;
 
@@ -34,6 +34,10 @@ bool repeat(int arreglo[], int num, int cont){
 }
 
 int main(){
+    int pares = 5;//variable para saber cuando el juego termine
+    int players[2];
+    players[0] = 0;
+    players[1] = 0;
     /*Variable que se manda al cliente con las posiciones y turno*/
     char load[LEN_LOAD];
 
@@ -127,12 +131,6 @@ int main(){
             if(polls[i].revents == 0)
                 continue;
 
-            /*if(polls[i].revents != POLLIN){
-                cout<<"Error en revents, no es POLLIN"<<endl;
-                terminar_servidor = 1;
-                break;
-            }*/
-
             if(polls[i].fd == s){
 
                 do{
@@ -156,8 +154,13 @@ int main(){
                     polls[npolls].events = POLLIN;
                     /*Enviar el número de jugador*/
                     load[10] = (char)(npolls + 48);
-                    load[11] = '\n';
+                    //load[11] = '\n';
+                    cout<<"Enviando: "<<load<<endl;
                     res = send(polls[npolls].fd, load, LEN_LOAD, 0);
+                    if(res < 0){
+                        perror("Error en send():");
+                        terminar_servidor = 1;
+                    }
                     npolls++;
 
                 }while(ns != -1);
@@ -166,6 +169,7 @@ int main(){
 
                 if((polls[i].revents & POLLERR) || (polls[i].revents & POLLHUP) || (polls[i].revents & POLLPRI) || (polls[i].revents & POLLIN)){
 
+                    cout<<i<<endl;
                     res2 = recv(polls[i].fd, buffer, 1500, 0);
                     if(res2 < 0){
                         perror("Error en recv()");
@@ -182,6 +186,39 @@ int main(){
                         buffer[res2] = '\0';
                         inet_ntop(AF_INET, &(clients[i].sin_addr), ipClient, 16);
                         cout<<ipClient<<" puerto "<<clients[i].sin_port<<" envio: "<<buffer<<endl;
+
+                        if(buffer[0] == '5'){
+                            cout<<"Entro"<<endl;
+                            int peer, c1, c2;
+                            char respuesta[10];
+                            peer = (int)(buffer[1] - 48);//jugador al que vamos a responder
+                            if(peer == 1)
+                                peer = 2;
+                            else
+                                peer = 1;
+
+                            c1 = (int)(buffer[2] - 48);
+                            c2 = (int)(buffer[3] - 48);
+
+                            if(tablero[c1] == tablero[c2]){
+                                players[i - 1]++;
+                                pares--;
+                            }
+
+                            if(pares == 0)
+                                cout<<"El juego ha terminado."<<endl;
+
+                            sprintf(respuesta, "%i%i", c1, c2);
+                            cout<<"ENVIANDO: "<<respuesta<<endl;
+                            res = send(polls[peer].fd, respuesta, sizeof(respuesta), 0);
+                            if(res < 0){
+                                perror("Error en send():");
+                                terminar_servidor == 1;
+                            }
+                            cout<<"Pares restantes: "<<pares<<endl;
+                            cout<<"Jugador 1: "<<players[0]<<" puntos."<<endl;
+                            cout<<"Jugador 2: "<<players[1]<<" puntos."<<endl;
+                        }
                     }
                 }
             }
