@@ -16,7 +16,7 @@
 #include <arpa/inet.h>
 
 #define PORT 25500
-#define LEN_LOAD 11
+#define LEN_LOAD 12
 
 using namespace std;
 
@@ -57,13 +57,18 @@ int main(){
             continue;
     }
 
+
     /*Mostrar valores del tablero*/
     bzero(load, LEN_LOAD);
     for(int i = 0; i < 10; i++){
         cout<<tablero[i]<<endl;
-        load[i] = (char)(tablero[i] + 48);
+        //sprintf(load, "%i", tablero[i]);
+        //load[i] = (char)(tablero[i] + 48);
     }
 
+    //sprintf(load, "%i%i%i%i%i%i%i%i%i%i", tablero[0], tablero[1], tablero[2], tablero[3], tablero[4], tablero[5], tablero[6], tablero[7], tablero[8], tablero[9]);
+
+    
     int s, ns;
     int on = 1, res, res2, npolls = 1, tamano_actual = 0;
     int terminar_servidor = 0, recorrer_arreglo = 0;
@@ -79,7 +84,7 @@ int main(){
         return EXIT_FAILURE;
     }
 
-    /*Inicializar la estructura sockaddr_in*/
+    //inicializar la estructura sockaddr_in
     memset(&server, 0, sizeof(server));
     server.sin_family = AF_INET;
     server.sin_port = htons(PORT);
@@ -152,11 +157,12 @@ int main(){
 
                     polls[npolls].fd = ns;
                     polls[npolls].events = POLLIN;
-                    /*Enviar el número de jugador*/
-                    load[10] = (char)(npolls + 48);
-                    //load[11] = '\n';
+                    //Enviar el número de jugador
+                    sprintf(load, "%i%i%i%i%i%i%i%i%i%i%i", tablero[0], tablero[1], tablero[2], tablero[3], tablero[4], tablero[5], tablero[6], tablero[7], tablero[8], tablero[9], npolls);
+                    //load[10] = (char)(npolls + 48);
+                    //load[11] = '\0';
                     cout<<"Enviando: "<<load<<endl;
-                    res = send(polls[npolls].fd, load, LEN_LOAD, 0);
+                    res = send(polls[npolls].fd, load, strlen(load), 0);
                     if(res < 0){
                         perror("Error en send():");
                         terminar_servidor = 1;
@@ -168,8 +174,6 @@ int main(){
             else{
 
                 if((polls[i].revents & POLLERR) || (polls[i].revents & POLLHUP) || (polls[i].revents & POLLPRI) || (polls[i].revents & POLLIN)){
-
-                    cout<<i<<endl;
                     res2 = recv(polls[i].fd, buffer, 1500, 0);
                     if(res2 < 0){
                         perror("Error en recv()");
@@ -188,7 +192,6 @@ int main(){
                         cout<<ipClient<<" puerto "<<clients[i].sin_port<<" envio: "<<buffer<<endl;
 
                         if(buffer[0] == '5'){
-                            cout<<"Entro"<<endl;
                             int peer, c1, c2;
                             char respuesta[10];
                             peer = (int)(buffer[1] - 48);//jugador al que vamos a responder
@@ -217,7 +220,7 @@ int main(){
                             }
                             cout<<"Pares restantes: "<<pares<<endl;
                             cout<<"Jugador 1: "<<players[0]<<" puntos."<<endl;
-                            cout<<"Jugador 2: "<<players[1]<<" puntos."<<endl;
+                            cout<<"Jugador 2: "<<players[1]<<" puntos."<<endl<<endl;
                         }
                     }
                 }
