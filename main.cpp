@@ -35,9 +35,9 @@ bool repeat(int arreglo[], int num, int cont){
 
 int main(){
     int pares = 5;//variable para saber cuando el juego termine
-    int players[2];
-    players[0] = 0;
-    players[1] = 0;
+    int scorePlayers[2];
+    scorePlayers[0] = 0;
+    scorePlayers[1] = 0;
     /*Variable que se manda al cliente con las posiciones y turno*/
     char load[LEN_LOAD];
 
@@ -65,8 +65,6 @@ int main(){
         //sprintf(load, "%i", tablero[i]);
         //load[i] = (char)(tablero[i] + 48);
     }
-
-    //sprintf(load, "%i%i%i%i%i%i%i%i%i%i", tablero[0], tablero[1], tablero[2], tablero[3], tablero[4], tablero[5], tablero[6], tablero[7], tablero[8], tablero[9]);
 
     
     int s, ns;
@@ -159,14 +157,13 @@ int main(){
                     polls[npolls].events = POLLIN;
                     //Enviar el número de jugador
                     sprintf(load, "%i%i%i%i%i%i%i%i%i%i%i", tablero[0], tablero[1], tablero[2], tablero[3], tablero[4], tablero[5], tablero[6], tablero[7], tablero[8], tablero[9], npolls);
-                    //load[10] = (char)(npolls + 48);
-                    //load[11] = '\0';
-                    cout<<"Enviando: "<<load<<endl;
+                    cout<<"Enviando al socket "<<npolls<<" :"<<load<<endl;
                     res = send(polls[npolls].fd, load, strlen(load), 0);
                     if(res < 0){
                         perror("Error en send():");
                         terminar_servidor = 1;
                     }
+                    cout<<"Se enviaron los datos."<<endl;
                     npolls++;
 
                 }while(ns != -1);
@@ -204,12 +201,13 @@ int main(){
                             c2 = (int)(buffer[3] - 48);
 
                             if(tablero[c1] == tablero[c2]){
-                                players[i - 1]++;
+                                scorePlayers[i - 1]++;
                                 pares--;
                             }
-
-                            if(pares == 0)
-                                cout<<"El juego ha terminado."<<endl;
+                            
+                            cout<<"Pares restantes: "<<pares<<endl;
+                            cout<<"Jugador 1: "<<scorePlayers[0]<<" puntos."<<endl;
+                            cout<<"Jugador 2: "<<scorePlayers[1]<<" puntos."<<endl<<endl;
 
                             sprintf(respuesta, "%i%i", c1, c2);
                             cout<<"ENVIANDO: "<<respuesta<<endl;
@@ -218,9 +216,10 @@ int main(){
                                 perror("Error en send():");
                                 terminar_servidor == 1;
                             }
-                            cout<<"Pares restantes: "<<pares<<endl;
-                            cout<<"Jugador 1: "<<players[0]<<" puntos."<<endl;
-                            cout<<"Jugador 2: "<<players[1]<<" puntos."<<endl<<endl;
+                            
+                            if(pares == 0){
+                                cout<<"GAMEOVER"<<endl;
+                            }
                         }
                     }
                 }
