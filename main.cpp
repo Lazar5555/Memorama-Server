@@ -4,7 +4,7 @@
 #include <string.h>
 #include <sys/time.h>
 
-/*Librerías para red*/
+/*Librerï¿½as para red*/
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
@@ -18,9 +18,11 @@
 #define PORT 25500
 #define LEN_LOAD 12
 
+#define WAITING_CODE "9999"
+
 using namespace std;
 
-/*Función para verificar que el numero solo esté dos veces en el tablero*/
+/*Funciï¿½n para verificar que el numero solo estï¿½ dos veces en el tablero*/
 bool repeat(int arreglo[], int num, int cont){
     int flag = 0;
     for(int i = 0; i <= cont; i++){
@@ -41,10 +43,10 @@ int main(){
     /*Variable que se manda al cliente con las posiciones y turno*/
     char load[LEN_LOAD];
 
-    /*Iniciar la semilla de números aleatorios*/
+    /*Iniciar la semilla de nï¿½meros aleatorios*/
     srand(time(NULL));
 
-    /*Cargar el tablero con números aleatorios*/
+    /*Cargar el tablero con nï¿½meros aleatorios*/
     int tablero[10], num, i = 0;
     memset(tablero, 0, sizeof(tablero));
     while(i < 10){
@@ -62,11 +64,8 @@ int main(){
     bzero(load, LEN_LOAD);
     for(int i = 0; i < 10; i++){
         cout<<tablero[i]<<endl;
-        //sprintf(load, "%i", tablero[i]);
-        //load[i] = (char)(tablero[i] + 48);
     }
 
-    
     int s, ns;
     int on = 1, res, res2, npolls = 1, tamano_actual = 0;
     int terminar_servidor = 0, recorrer_arreglo = 0;
@@ -135,7 +134,6 @@ int main(){
                 continue;
 
             if(polls[i].fd == s){
-
                 do{
                     memset(&client, 0, sizeof(client));
                     clielen = sizeof(client);
@@ -155,7 +153,7 @@ int main(){
 
                     polls[npolls].fd = ns;
                     polls[npolls].events = POLLIN;
-                    //Enviar el número de jugador
+                    //Enviar el nï¿½mero de jugador
                     sprintf(load, "%i%i%i%i%i%i%i%i%i%i%i", tablero[0], tablero[1], tablero[2], tablero[3], tablero[4], tablero[5], tablero[6], tablero[7], tablero[8], tablero[9], npolls);
                     cout<<"Enviando al socket "<<npolls<<" :"<<load<<endl;
                     res = send(polls[npolls].fd, load, strlen(load), 0);
@@ -164,8 +162,28 @@ int main(){
                         terminar_servidor = 1;
                     }
                     cout<<"Se enviaron los datos."<<endl;
-                    npolls++;
 
+                    /*if(npolls == 1){
+                        res = send(polls[npolls].fd, WAITING_CODE, sizeof(WAITING_CODE), 0);
+                        if(res < 0){
+                            perror("Error en send()");
+                            terminar_servidor = 1;
+                        }
+                    }
+                    else if(npolls == 2){
+                        res = send(polls[1].fd, "8888", 4, 0);
+                        if(res < 0){
+                            perror("Error en send()");
+                            terminar_servidor = 1;
+                        }
+                        res = send(polls[2].fd, "8888", 4, 0);
+                        if(res < 0){
+                            perror("Error en send()");
+                            terminar_servidor = 1;
+                        }
+                    }*/
+
+                    npolls++;
                 }while(ns != -1);
             }
             else{
@@ -204,7 +222,7 @@ int main(){
                                 scorePlayers[i - 1]++;
                                 pares--;
                             }
-                            
+
                             cout<<"Pares restantes: "<<pares<<endl;
                             cout<<"Jugador 1: "<<scorePlayers[0]<<" puntos."<<endl;
                             cout<<"Jugador 2: "<<scorePlayers[1]<<" puntos."<<endl<<endl;
@@ -216,7 +234,7 @@ int main(){
                                 perror("Error en send():");
                                 terminar_servidor == 1;
                             }
-                            
+
                             if(pares == 0){
                                 cout<<"GAMEOVER"<<endl;
                             }
