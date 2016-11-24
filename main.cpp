@@ -18,11 +18,9 @@
 #define PORT 25500
 #define LEN_LOAD 12
 
-#define WAITING_CODE "9999"
-
 using namespace std;
 
-/*Funci�n para verificar que el numero solo est� dos veces en el tablero*/
+//Función para verificar que el numero solo esté dos veces en el tablero
 bool repeat(int arreglo[], int num, int cont){
     int flag = 0;
     for(int i = 0; i <= cont; i++){
@@ -163,25 +161,14 @@ int main(){
                     }
                     cout<<"Se enviaron los datos."<<endl;
 
-                    /*if(npolls == 1){
-                        res = send(polls[npolls].fd, WAITING_CODE, sizeof(WAITING_CODE), 0);
-                        if(res < 0){
-                            perror("Error en send()");
-                            terminar_servidor = 1;
-                        }
-                    }
-                    else if(npolls == 2){
+                    //Indicar al jugador 1 que ya puede comenzar el juego
+                    if(npolls == 2){
                         res = send(polls[1].fd, "8888", 4, 0);
                         if(res < 0){
                             perror("Error en send()");
                             terminar_servidor = 1;
                         }
-                        res = send(polls[2].fd, "8888", 4, 0);
-                        if(res < 0){
-                            perror("Error en send()");
-                            terminar_servidor = 1;
-                        }
-                    }*/
+                    }
 
                     npolls++;
                 }while(ns != -1);
