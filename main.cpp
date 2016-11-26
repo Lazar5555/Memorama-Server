@@ -4,7 +4,7 @@
 #include <string.h>
 #include <sys/time.h>
 
-/*Librerï¿½as para red*/
+/*Librerías para red*/
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
@@ -16,11 +16,11 @@
 #include <arpa/inet.h>
 
 #define PORT 25500
-#define LEN_LOAD 12
+#define LEFT_PLAYER "7777"
 
 using namespace std;
 
-//FunciÃ³n para verificar que el numero solo estÃ© dos veces en el tablero
+//Función para verificar que el numero solo estÃ© dos veces en el tablero
 bool repeat(int arreglo[], int num, int cont){
     int flag = 0;
     for(int i = 0; i <= cont; i++){
@@ -38,13 +38,13 @@ int main(){
     int scorePlayers[2];
     scorePlayers[0] = 0;
     scorePlayers[1] = 0;
-    /*Variable que se manda al cliente con las posiciones y turno*/
-    char load[LEN_LOAD];
+    //Variable que se manda al cliente con las posiciones y turno
+    char load[12];
 
-    /*Iniciar la semilla de nï¿½meros aleatorios*/
+    //Iniciar la semilla de números aleatorios
     srand(time(NULL));
 
-    /*Cargar el tablero con nï¿½meros aleatorios*/
+    //Cargar el tablero con nï¿½meros aleatorios
     int tablero[10], num, i = 0;
     memset(tablero, 0, sizeof(tablero));
     while(i < 10){
@@ -59,7 +59,7 @@ int main(){
 
 
     /*Mostrar valores del tablero*/
-    bzero(load, LEN_LOAD);
+    bzero(load, 12);
     for(int i = 0; i < 10; i++){
         cout<<tablero[i]<<endl;
     }
@@ -188,6 +188,21 @@ int main(){
                         close(polls[i].fd);
                         polls[i].fd = -1;
                         recorrer_arreglo = 1;
+
+                        //Informar al otro jugador que abandonaron la partida
+                        if(npolls == 3){
+                            int  toPlayer;
+                            if(i == 1)
+                                toPlayer = 2;
+                            else if(i == 2)
+                                toPlayer = 1;
+
+                            res = send(polls[toPlayer].fd, LEFT_PLAYER, 4, 0);
+                            if(res < 0){
+                                perror("Error en send() LEFT_PLAYER:");
+                                terminar_servidor = 1;
+                            }
+                        }
                     }else{
                         buffer[res2] = '\0';
                         inet_ntop(AF_INET, &(clients[i].sin_addr), ipClient, 16);
@@ -232,7 +247,6 @@ int main(){
         }
 
         if(recorrer_arreglo == 1){
-
             recorrer_arreglo = 0;
             for (int i = 0; i < npolls; i++){
                 if (polls[i].fd == -1){
