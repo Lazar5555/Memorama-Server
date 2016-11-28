@@ -4,7 +4,7 @@
 #include <string.h>
 #include <sys/time.h>
 
-/*Librerías para red*/
+//Librerías para red
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <netdb.h>
@@ -38,13 +38,13 @@ int main(){
     int scorePlayers[2];
     scorePlayers[0] = 0;
     scorePlayers[1] = 0;
-    //Variable que se manda al cliente con las posiciones y turno
-    char load[12];
+    //Variable con el tablero y cadena se utiliza para sprintf()
+    char load[12], cadena[10];
 
     //Iniciar la semilla de números aleatorios
     srand(time(NULL));
 
-    //Cargar el tablero con nï¿½meros aleatorios
+    //Cargar el tablero con números aleatorios
     int tablero[10], num, i = 0;
     memset(tablero, 0, sizeof(tablero));
     while(i < 10){
@@ -53,12 +53,9 @@ int main(){
             tablero[i] = num;
             i++;
         }
-        else
-            continue;
     }
 
-
-    /*Mostrar valores del tablero*/
+    //Mostrar valores del tablero
     bzero(load, 12);
     for(int i = 0; i < 10; i++){
         cout<<tablero[i]<<endl;
@@ -203,6 +200,21 @@ int main(){
                                 terminar_servidor = 1;
                             }
                         }
+
+                        //Cargar nuevo tablero
+                        memset(tablero, 0, sizeof(tablero));
+                        i = 0;
+                        while(i < 10){
+                            num = 1 + rand()%(5 + 1 - 1);
+                            if(!repeat(tablero, num, i)){
+                                tablero[i] = num;
+                                i++;
+                            }
+                        }
+
+                        pares = 5;
+                        scorePlayers[0] = 0;
+                        scorePlayers[1] = 0;
                     }else{
                         buffer[res2] = '\0';
                         inet_ntop(AF_INET, &(clients[i].sin_addr), ipClient, 16);
@@ -229,16 +241,60 @@ int main(){
                             cout<<"Jugador 1: "<<scorePlayers[0]<<" puntos."<<endl;
                             cout<<"Jugador 2: "<<scorePlayers[1]<<" puntos."<<endl<<endl;
 
-                            sprintf(respuesta, "%i%i", c1, c2);
-                            cout<<"ENVIANDO: "<<respuesta<<endl;
-                            res = send(polls[peer].fd, respuesta, sizeof(respuesta), 0);
-                            if(res < 0){
-                                perror("Error en send():");
-                                terminar_servidor == 1;
-                            }
-
                             if(pares == 0){
+                                int winer, loser;
                                 cout<<"GAMEOVER"<<endl;
+
+                                if(scorePlayers[0] > scorePlayers[1]){
+                                    winer = 0;
+                                    loser = 1;
+                                }
+                                else if(scorePlayers[0] < scorePlayers[1]){
+                                    winer = 1;
+                                    loser = 0;
+                                }
+
+                                //Mesaje de fin al ganador
+                                sprintf(respuesta, "%i%i%i%i%s", c1, c2, scorePlayers[0], scorePlayers[1], "W");
+                                cout<<"ENVIANDO: "<<respuesta<<endl;
+                                res = send(polls[winer + 1].fd, respuesta, sizeof(respuesta), 0);
+                                if(res < 0){
+                                    perror("Error en send():");
+                                    terminar_servidor == 1;
+                                }
+
+                                //Mensaje de fin al perdedor
+                                sprintf(respuesta, "%i%i%i%i%s", c1, c2, scorePlayers[0], scorePlayers[1], "L");
+                                cout<<"ENVIANDO: "<<respuesta<<endl;
+                                res = send(polls[loser + 1].fd, respuesta, sizeof(respuesta), 0);
+                                if(res < 0){
+                                    perror("Error en send():");
+                                    terminar_servidor == 1;
+                                }
+
+                                //Cargar nueva partida
+                                memset(tablero, 0, sizeof(tablero));
+                                i = 0;
+                                while(i < 10){
+                                    num = 1 + rand()%(5 + 1 - 1);
+                                    if(!repeat(tablero, num, i)){
+                                        tablero[i] = num;
+                                        i++;
+                                    }
+                                }
+
+                                pares = 5;
+                                scorePlayers[0] = 0;
+                                scorePlayers[1] = 0;
+                            }
+                            else{
+                                sprintf(respuesta, "%i%i%i%i%s", c1, c2, scorePlayers[0], scorePlayers[1], "N");
+                                cout<<"ENVIANDO: "<<respuesta<<endl;
+                                res = send(polls[peer].fd, respuesta, sizeof(respuesta), 0);
+                                if(res < 0){
+                                    perror("Error en send():");
+                                    terminar_servidor == 1;
+                                }
                             }
                         }
                     }
